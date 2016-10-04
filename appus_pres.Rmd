@@ -1,0 +1,107 @@
+---
+title: "Teste Appus"
+author: "Henrique Lorea"
+date: "October 4, 2016"
+output: html_document
+---
+```{r include=FALSE}
+# Importing source
+#setwd(paste0(system('pwd', intern=T), '/code/appus'))
+source('appus_source.R')
+```
+
+
+# Introdução
+
+Apresenta-se aqui os resultados do teste proposto pela Appus como parte do processo de seleção para cientista de dados. O problema é assim enunciado:
+
+
+> Um Consultor de Recursos Humanos na função de parceiro de negócio e responsável por munir os gerentes com insights sobre a força de trabalho está preocupado com o alto índice de turnover na sua empresa, principalmente para públicos específicos (trainee, talentos, posição crítica, gerentes de vendas). Em função disto, busca uma forma de predizer quais colaboradores são mais suscetíveis a deixar a empresa, de forma voluntária, ao longo do
+próximo ano.
+
+Nesses termos, cumpre em primeiro lugar entender a frequência de distribuição dos valores de turnover e delimitar o que seria um alto valor desta variável.
+
+## Definindo alto turnover
+
+Através da sobreposição entre um histograma e uma curva de densidade, pode-se perceber um ponto de inflexão em `x = 0.19`. A partir deste ponto, passa-se a observar um novo aumento de frequência. Nessas condições, assume-se que os valores de turnover iguais ou maiores que 0.19 valor são altos.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#plots
+# turnover geral
+plotTurnover
+```
+
+A percepção do consultor sobre públicos específicos pode ser demonstrada com dados, também representados através dos histogramas abaixo. Neles, fica clara a grande incidência de elementos com alto turnover das categorias em questão.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+data$turnover_baixo <- data$Turnover.mercado < 0.19
+
+p1 <- ggplot(data[data$Área == 'Trainee', ]) +
+                scale_x_continuous(limits=c(min(data$Turnover.mercado), 
+                                    max(data$Turnover.mercado)), 
+                           breaks=seq(min(data$Turnover.mercado), max(data$Turnover.mercado), 0.04), 
+                           expand=c(0,0)) +
+        geom_bar(aes(x=Turnover.mercado, y = ..count..,fill=turnover_baixo), binwidth = 0.01) +
+        geom_vline(aes(xintercept=0.19), colour='#990000', linetype = "longdash", size=0.5) +
+        theme(legend.position="none") +
+        xlab("Turnover de mercado") +
+        ylab("Frequência") +
+        labs(title = "Trainees")
+
+# turnover gerência
+p2 <- ggplot(data[data$Área == 'Gerência', ]) +
+                scale_x_continuous(limits=c(min(data$Turnover.mercado), 
+                                    max(data$Turnover.mercado)), 
+                           breaks=seq(min(data$Turnover.mercado), max(data$Turnover.mercado), 0.04), 
+                           expand=c(0,0)) +
+        geom_bar(aes(x=Turnover.mercado, y = ..count.., fill=turnover_baixo), binwidth = 0.01) +
+        geom_vline(aes(xintercept=0.19), colour='#990000', linetype = "longdash", size=0.5) +
+        theme(legend.position="none") +
+        xlab("Turnover de mercado") +
+        ylab("Frequência") +
+        labs(title = "Gerentes")
+
+# turnover ex-trainee
+p3 <- ggplot(data[data$Ex.trainee == 1, ]) +
+                scale_x_continuous(limits=c(min(data$Turnover.mercado), 
+                                    max(data$Turnover.mercado)), 
+                           breaks=seq(min(data$Turnover.mercado), max(data$Turnover.mercado), 0.04), 
+                           expand=c(0,0)) +
+        geom_bar(aes(x=Turnover.mercado, y = ..count.., fill=turnover_baixo), binwidth = 0.01) +
+        geom_vline(aes(xintercept=0.19), colour='#990000', linetype = "longdash", size=0.5) +
+        theme(legend.position="none") +
+        xlab("Turnover de mercado") +
+        ylab("Frequência") +
+        labs(title = "New plot title") +
+        labs(title = "Ex-trainees")
+
+# turnover posição crítica
+p4 <- ggplot(data[data$Posição.crítica == 1, ]) +
+                scale_x_continuous(limits=c(min(data$Turnover.mercado), 
+                                    max(data$Turnover.mercado)), 
+                           breaks=seq(min(data$Turnover.mercado), max(data$Turnover.mercado), 0.04), 
+                           expand=c(0,0)) +
+        geom_bar(aes(x=Turnover.mercado, y = ..count.., fill=turnover_baixo), binwidth = 0.01) +
+        geom_vline(aes(xintercept=0.19), colour='#990000', linetype = "longdash", size=0.5) +
+        theme(legend.position="none") +
+        xlab("Turnover de mercado") +
+        ylab("Frequência") +
+        labs(title = "Colaboradores com Posição crítica")
+
+# turnover posição crítica
+p5 <- ggplot(data[data$Avaliação.de.desempenho == 'EXCELENTE' | data$Avaliação.de.desempenho == 'ÓTIMO', ]) +
+                scale_x_continuous(limits=c(min(data$Turnover.mercado), 
+                                    max(data$Turnover.mercado)), 
+                           breaks=seq(min(data$Turnover.mercado), max(data$Turnover.mercado), 0.04), 
+                           expand=c(0,0)) +
+        geom_bar(aes(x=Turnover.mercado, y = ..count.., fill=turnover_baixo), binwidth = 0.01) +
+        geom_vline(aes(xintercept=0.19), colour='#990000', linetype = "longdash", size=0.5) +
+        theme(legend.position="none") +
+        xlab("Turnover de mercado") +
+        ylab("Frequência") +
+        labs(title = "Talentos")
+
+multiplot(p1, p2, p3, p4, p5, cols=2)
+```
+
